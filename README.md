@@ -2,6 +2,8 @@
 
 This project implements an AI-powered question-answering agent that extracts content from a URL, indexes it, and allows users to ask questions based on the content. The system uses a combination of pre-trained models (such as BERT for question-answering and Sentence Transformers for semantic search) to process and respond to user queries.
 
+[Demo Video](https://drive.google.com/file/d/1uA3_SISpWzZdTu3I_BkjDnuHZgk6IK-T/view?usp=sharing)
+
 ## Table of Contents
 
 1. [Setup Instructions](#setup-instructions)
