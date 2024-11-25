@@ -65,9 +65,10 @@ The implementation of the AI-powered question-answering agent follows a structur
 
 ### 2. Scalability:
 
-• Use Langchain to attach different chains (e.g. Prompt chain -> Answer chain).
-• Use Langsmith to understand, debug and monitor the app better.
-• Use a vector DB to generate vector embeddings for better search functionality
+- Use Langchain to attach different chains (e.g. Prompt chain -> Answer chain).
+- Use Langsmith to understand, debug and monitor the app better.
+- Use a vector DB to generate vector embeddings for better search functionality.
+- Improve the accuracy of the responses for larger content.
 
 ### 3. Model Optimization:
 
