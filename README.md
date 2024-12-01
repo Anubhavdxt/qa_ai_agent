@@ -2,7 +2,9 @@
 
 This project implements an AI-powered question-answering agent that extracts content from a URL, indexes it, and allows users to ask questions based on the content. The system uses a combination of pre-trained models (e.g. `llama3.2`, `nomic-embed-text`) to process and respond to user queries.
 
-[Demo Video](https://drive.google.com/file/d/1uA3_SISpWzZdTu3I_BkjDnuHZgk6IK-T/view?usp=sharing)
+[CLI Demo Video](https://drive.google.com/file/d/1pBg-2wbLPAIk_bWWrzodTJ1GpKtpACB1/view?usp=sharing)
+[API Docs](https://drive.google.com/file/d/1noUVGuo2UkQk9gAMsFCcO0VgAnOobOq7/view?usp=sharing)
+[UI Demo](https://drive.google.com/file/d/1QIFHCtgngIWolR5Yca7QCShFufD7_hZz/view?usp=sharing)
 
 ## Table of Contents
 
