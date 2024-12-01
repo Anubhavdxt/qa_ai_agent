@@ -62,8 +62,6 @@ idna==3.10
     #   anyio
     #   httpx
     #   requests
-iniconfig==2.0.0
-    # via pytest
 jinja2==3.1.4
     # via
     #   altair
@@ -91,7 +89,6 @@ ollama==0.4.2
 packaging==24.2
     # via
     #   altair
-    #   pytest
     #   streamlit
 pandas==2.2.3
     # via streamlit
@@ -101,8 +98,6 @@ phidata==2.5.33
     # via -r requirements.in
 pillow==11.0.0
     # via streamlit
-pluggy==1.5.0
-    # via pytest
 primp==0.8.1
     # via duckduckgo-search
 protobuf==5.29.0
@@ -127,10 +122,6 @@ pydeck==0.9.1
     # via streamlit
 pygments==2.18.0
     # via rich
-pypdf==5.1.0
-    # via -r requirements.in
-pytest==8.3.3
-    # via -r requirements.in
 python-dateutil==2.9.0.post0
     # via pandas
 python-dotenv==1.0.1

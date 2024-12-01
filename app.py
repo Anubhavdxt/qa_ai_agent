@@ -6,14 +6,17 @@ from phi.document import Document
 from phi.document.reader.website import WebsiteReader
 from phi.utils.log import logger
 
-from assistant import get_rag_assistant  # type: ignore
+from assistant import (
+    get_rag_assistant,
+    is_response_relevant,
+    calculate_confidence,
+)
 
 st.set_page_config(
-    page_title="QnA AI agent",
-    page_icon=":orange_heart:",
+    page_title="QA AI agent",
+    page_icon="🤖",
 )
-st.title("QnA AI Agent")
-st.markdown("##### :orange_heart: Built using phidata")
+st.title("Help website QA AI Agent")
 
 
 def restart_assistant():
@@ -103,11 +106,21 @@ def main() -> None:
             response = ""
             resp_container = st.empty()
             for delta in rag_assistant.run(question):
-                response += delta  # type: ignore
-                resp_container.markdown(response)
-            st.session_state["messages"].append(
-                {"role": "assistant", "content": response}
-            )
+                # Check if the response is relevant
+                response += delta
+            documents = rag_assistant.knowledge_base.vector_db.search(
+                question, 3
+            )  # Retrieve top-k documents
+            if is_response_relevant(response, documents):
+                # Calculate confidence score
+                confidence = calculate_confidence(response, documents)
+                resp_container.markdown(
+                    f"{response}\n\nConfidence: {confidence * 100:.2f}%"
+                )
+            else:
+                resp_container.markdown(
+                    f"The provided URL has no information available"
+                )
 
     # Load knowledge base
     if rag_assistant.knowledge_base:

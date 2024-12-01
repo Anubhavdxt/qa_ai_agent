@@ -1,7 +1,62 @@
 services:
-  qa-agent:
-    build: .
+  # API service
+  api:
+    build:
+      context: .
+      target: api # Build the API target from the multi-stage Dockerfile
     ports:
-      - '8000:8000'
+      - "8000:8000" # Expose API on port 8000
     environment:
-      - URL
+      - DATABASE_URL=postgresql+psycopg://ai:ai@pgvector:5532/ai
+    depends_on:
+      - pgvector # Ensure pgvector service starts before API
+    networks:
+      - app-network
+
+  # UI (Streamlit) service
+  ui:
+    build:
+      context: .
+      target: ui # Build the UI target from the multi-stage Dockerfile
+    ports:
+      - "8501:8501" # Expose Streamlit UI on port 8501
+    environment:
+      - DATABASE_URL=postgresql+psycopg://ai:ai@pgvector:5532/ai
+    depends_on:
+      - api # UI depends on API
+    networks:
+      - app-network
+
+  # CLI service
+  cli:
+    build:
+      context: .
+      target: cli # Build the CLI target from the multi-stage Dockerfile
+    environment:
+      - DATABASE_URL=postgresql+psycopg://ai:ai@pgvector:5532/ai
+    stdin_open: true # Keep stdin open for interaction
+    tty: true # Enable interactive mode for CLI
+    networks:
+      - app-network
+
+  # PostgreSQL with pgvector service
+  pgvector:
+    image: phidata/pgvector:16
+    environment:
+      - POSTGRES_DB=ai
+      - POSTGRES_USER=ai
+      - POSTGRES_PASSWORD=ai
+    volumes:
+      - pgvolume:/var/lib/postgresql/data
+    ports:
+      - "5532:5532" # Expose PostgreSQL on port 5532
+    networks:
+      - app-network
+
+volumes:
+  pgvolume:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge

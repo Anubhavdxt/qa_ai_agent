@@ -12,14 +12,35 @@ from phi.storage.assistant.postgres import PgAssistantStorage
 db_url = "postgresql+psycopg://ai:ai@localhost:5532/ai"
 
 
+def calculate_confidence(response: str, documents: List[Document]) -> float:
+    """Calculate confidence score based on the similarity of the response to the documents"""
+    if not response or not documents:
+        return 0.0
+
+    # Simple confidence based on the number of relevant documents retrieved
+    relevant_docs_count = len(documents)
+    return min(
+        1.0, relevant_docs_count / 10.0
+    )  # Max confidence score 1.0 for high relevance
+
+
+def is_response_relevant(response: str, documents: List[Document]) -> bool:
+    """Check if the response contains relevant information from the documents"""
+    for doc in documents:
+        if response in doc.content:
+            return True
+    return False
+
+
 def get_rag_assistant(
     llm_model: str = "llama3.2:3b",
     embeddings_model: str = "nomic-embed-text",
     user_id: Optional[str] = None,
     run_id: Optional[str] = None,
     debug_mode: bool = False,
+    db_url: str = db_url,
 ) -> Assistant:
-    """Get a Local RAG Assistant."""
+    """Get a Local RAG Assistant with confidence scoring."""
 
     # Define the embedder based on the embeddings model
     embedder = OllamaEmbedder(model=embeddings_model, dimensions=4096)
@@ -46,13 +67,14 @@ def get_rag_assistant(
         llm=Ollama(model=llm_model),
         storage=PgAssistantStorage(table_name="local_rag_assistant", db_url=db_url),
         knowledge_base=knowledge,
-        description="You are an help website QA AI agent and your task is to answer questions using the provided information",
+        description="You are a help website QA AI agent and your task is to answer questions using the provided information",
         instructions=[
             "When a user asks a question, you will be provided with information about the question.",
             "Carefully read this information and provide a clear and concise answer to the user.",
             "Include the source URL for your answers when possible.",
-            "Clearly indicate when information is not available.",
-            "If the information is not provided, answer with 'The provided URL has no information available for this.'",
+            "Clearly indicate when information is not available in the provided context.",
+            "If the information is not in the provided context, answer with 'The provided URL has no information available for this.'",
+            "Do not include information from the internet for answers.",
         ],
         # Uncomment this setting adds chat history to the messages
         # add_chat_history_to_messages=True,

@@ -1,5 +1,11 @@
 import sys
-from assistant import get_rag_assistant, process_url, extract_content
+from assistant import (
+    get_rag_assistant,
+    process_url,
+    extract_content,
+    is_response_relevant,
+    calculate_confidence,
+)
 
 
 def main():
@@ -32,7 +38,14 @@ def main():
         response = ""
         for delta in rag_assistant.run(question):
             response += delta
-        print(response)
+        # Check if the response is relevant
+        if is_response_relevant(response, documents):
+            # Calculate confidence score
+            confidence = calculate_confidence(response, documents)
+            print(f"Answer: {response}")
+            print(f"Confidence: {confidence * 100:.2f}%")
+        else:
+            print("The provided URL has no information available for this.")
 
 
 if __name__ == "__main__":

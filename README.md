@@ -1,6 +1,6 @@
 # AI-powered Question-Answering Agent
 
-This project implements an AI-powered question-answering agent that extracts content from a URL, indexes it, and allows users to ask questions based on the content. The system uses a combination of pre-trained models (such as BERT for question-answering and Sentence Transformers for semantic search) to process and respond to user queries.
+This project implements an AI-powered question-answering agent that extracts content from a URL, indexes it, and allows users to ask questions based on the content. The system uses a combination of pre-trained models (e.g. `llama3.2`, `nomic-embed-text`) to process and respond to user queries.
 
 [Demo Video](https://drive.google.com/file/d/1uA3_SISpWzZdTu3I_BkjDnuHZgk6IK-T/view?usp=sharing)
 
@@ -20,141 +20,196 @@ To run this project locally or in a Docker container, follow the steps below.
 
 Clone the repository to your local machine:
 
-```bash
+```shell
 git clone https://github.com/anubhavdxt/qa_ai_agent.git
 cd qa-agent
 ```
 
-### 2. Install Dependencies
+### 1. [Install](https://ollama.com/) ollama and pull models
 
-1. Install the necessary dependencies by creating a virtual environment:
+Pull the LLM you'd like to use:
 
-```bash
-python -m venv myenv
-source myenv/bin/activate
+```shell
+ollama pull llama3
 ```
 
-2. Install the agent package in agent mode:
+Pull the Embeddings model:
 
-```bash
-pip install -e .
+```shell
+ollama pull nomic-embed-text
 ```
 
-3. Run the application:
+### 2. Create a virtual environment
 
-```bash
-python src/agent/qa_agent.py --url http://help.zluri.com
+```shell
+python3 -m venv ~/.venvs/aienv
+source ~/.venvs/aienv/bin/activate
 ```
 
-4. Run unit tests:
+### 3. Install libraries
 
-```bash
+```shell
+pip install -r requirements.txt
+```
+
+### 4. Run PgVector
+
+> Install [docker desktop](https://docs.docker.com/desktop/install/mac-install/) first.
+
+- Run using a helper script
+
+```shell
+./run_pgvector.sh
+```
+
+- OR run using the docker run command
+
+```shell
+docker run -d \
+  -e POSTGRES_DB=ai \
+  -e POSTGRES_USER=ai \
+  -e POSTGRES_PASSWORD=ai \
+  -e PGDATA=/var/lib/postgresql/data/pgdata \
+  -v pgvolume:/var/lib/postgresql/data \
+  -p 5532:5432 \
+  --name pgvector \
+  phidata/pgvector:16
+```
+
+### 5. Run the CLI application
+
+- Run application in CLI:
+
+```shell
+python qa_agent.py --url http://help.zluri.com
+```
+
+- Run unit tests:
+
+```shell
 python -m unittest discover -s src/tests
 ```
 
-### 3. Docker setup
+### 6. Run API App
 
-1. Build the docker image:
-
-```bash
-docker compose build
+```shell
+uvicorn api:app --reload
 ```
 
-2. Run the application
+Open [localhost:8000](http://localhost:8000) to view your local RAG app.
 
-```bash
-URL=https://help.zluri.com docker compose run qa-agent
+### 7. Run UI App
+
+```shell
+streamlit run app.py
 ```
+
+Open [localhost:8501](http://localhost:8501) to view your local RAG app.
 
 ## Dependencies
 
-### requests:
+### ollama
 
-For making HTTP requests to fetch web content.
+Provides integration with Ollama for large language models and embedding models.
 
-### beautifulsoup4:
+### pgvector
 
-For parsing HTML content from web pages.
+Provides PostgreSQL support for vector data types, useful for storing and querying vector embeddings.
 
-### transformers:
+### phidata
 
-For the BERT-based question-answering model.
+A framework for data-driven applications, providing utilities for handling data processing, embedding models, and managing AI workflows.
 
-### sentence-transformers:
+### psycopg
 
-For sentence-level embeddings used in semantic search.
+PostgreSQL adapter for Python, used for database interactions with PostgreSQL databases.
 
-### torch:
+### sqlalchemy
 
-For running the models (required by transformers and sentence-transformers).
+SQL toolkit and Object-Relational Mapping (ORM) library for Python, used for managing database schemas and interactions.
 
-### docker:
+### streamlit
 
-For containerizing the application (optional, if using Docker).
+Framework for creating web applications in Python, used for building the UI of the application.
+
+### bs4 (BeautifulSoup)
+
+Library for parsing HTML and XML documents, used for extracting data from web pages.
+
+### fastapi
+
+Web framework for building APIs with Python, used for creating RESTful API endpoints.
+
+### uvicorn
+
+ASGI server for serving FastAPI applications, used to run the FastAPI web server.
+
+### docker
+
+(Optional) Tool for containerizing applications, used to create and manage containers for the application if Docker is utilized.
 
 ## Usage Examples
 
-### Run the application with a URL:
+### Run the application in CLI
 
-Running the agent locally using:
-
-```bash
+```shell
 python src/agent/qa_agent.py --url http://help.zluri.com
 ```
 
-### Run the application in Docker:
+### Run the application API
 
-If you're using docker, run the app with the desired URL:
-
-```bash
-URL=https://help.zluri.com docker compose run qa-agent
+```shell
+uvicorn api:app --reload
 ```
+
+Open [localhost:8000](http://localhost:8000) to view your local RAG app.
+
+### Run the application UI
+
+```shell
+streamlit run app.py
+```
+
+Open [localhost:8501](http://localhost:8501) to view your local RAG app.
 
 ## Design Decisions
 
-### 1. Model Choice:
+### 1. Model Choice
 
-- We use BERT for question-answering (bert-large-uncased-whole-word-masking-finetuned-squad) and Sentence Transformers for semantic search (all-MiniLM-L6-v2).
-- These models were chosen because they are pre-trained on large datasets and fine-tuned for the respective tasks (question-answering and sentence-level embeddings).
+- _Llama3.2_ is being used for question-answering and _nomic-embed-text_ for embeddings.
+- These models were chosen because they are pre-trained on large datasets and are capable of RAG.
 
-### 2. Caching:
-
-- To avoid re-fetching and re-processing the same URLs, the extracted content is cached in a JSON file. This helps with performance and reduces network usage during repeated queries.
-
-### 3. Modularity:
+### 2. Modularity
 
 - The application is designed to be modular. Different components such as content processing, question answering, and performance monitoring are separated into individual classes and modules. This promotes maintainability and ease of testing.
 
-### 4. Dockerisation:
+### 3. Dockerisation
 
-- Docker is used to containerize the application to ensure that it runs consistently across different environments. Docker Compose simplifies managing the application’s dependencies, especially if you need to run the app with multiple services.
+- Docker is used to containerize the application to ensure that it runs consistently across different environments.
+- Docker Compose simplifies managing the application’s dependencies, especially if you need to run the app with multiple services.
 
-### 5. Environment Variables:
+### 4. Logging
 
-- The URL is passed as an environment variable, allowing for flexibility and automation. This allows the application to fetch content dynamically based on the URL provided at runtime.
-
-### 6. Logging:
-
-- Logging has been set up to track the time taken for key steps (encoding, QA processing) and to suppress warnings from unused model weights. This makes the application easier to monitor and debug.
+- Logging has been set up to track the time taken for key steps (encoding, QA processing) and to suppress warnings from unused model weights making the application easier to monitor and debug.
 
 ## Known Limitations
 
-### 1. Limited Recursion Depth:
+### 1. Limited Recursion Depth
 
-- The web scraping functionality has a recursion depth limit to prevent excessive resource usage when crawling deeply nested websites. This can be adjusted by changing the MAX_DEPTH in the content_processor.py file.
+- The web scraping functionality has a recursion depth limit to prevent excessive resource usage when crawling deeply nested websites. This can be adjusted by changing the `max_depth` in the `process_url` function of _assistant.py_ file.
 
-### 2. Model Size and Performance:
+### 2. Model Size and Performance
 
-- The BERT model used for question answering is large and may consume significant resources. If performance is a concern, consider using smaller models or running the application on machines with sufficient resources.
+- The Llama3.2 model used for question answering is large and may consume significant resources. If performance is a concern, consider using Llama3.2:1B or running the application on machines with sufficient resources.
 
-### 3. Non-interactive Mode:
+### 3. Non-interactive Mode
 
 - The application uses input() for interactive question input, which is not suited for running in detached Docker containers.
 
-### 4. Web Scraping Limitations:
+### 4. Web Scraping Limitations
 
 - The content extraction relies on BeautifulSoup and works best with well-structured HTML. Some dynamic content generated by JavaScript may not be captured by this method. Future improvements could involve integrating with headless browsers (e.g., Selenium) for more complex web scraping.
 
-### 5. Handling Large Web Pages:
+### 5. Handling Large Web Pages
 
 - For very large web pages, performance may degrade, especially when dealing with substantial amounts of text. Implementing more advanced techniques, such as extracting content based on section headers, could improve efficiency.
