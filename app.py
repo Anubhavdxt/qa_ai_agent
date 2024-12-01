@@ -31,7 +31,7 @@ def restart_assistant():
 
 def main() -> None:
     # Get model
-    llm_model = st.sidebar.selectbox("Select Model", options=["llama3.2:3b"])
+    llm_model = st.sidebar.selectbox("Select Model", options=["llama3.2"])
     # Set assistant_type in session state
     if "llm_model" not in st.session_state:
         st.session_state["llm_model"] = llm_model
@@ -43,7 +43,7 @@ def main() -> None:
     # Get Embeddings model
     embeddings_model = st.sidebar.selectbox(
         "Select Embeddings",
-        options=["nomic-embed-text", "llama3.2:3b"],
+        options=["nomic-embed-text", "llama3.2"],
         help="When you change the embeddings model, the documents will need to be added again.",
     )
     # Set assistant_type in session state

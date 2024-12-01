@@ -25,15 +25,15 @@ def calculate_confidence(response: str, documents: List[Document]) -> float:
 
 
 def is_response_relevant(response: str, documents: List[Document]) -> bool:
-    """Check if the response contains relevant information from the documents"""
-    for doc in documents:
-        if response in doc.content:
-            return True
-    return False
+    """Check if the response contains not available string"""
+    not_available_str = "The provided URL has no information available"
+    if not_available_str in response:
+        return False
+    return True
 
 
 def get_rag_assistant(
-    llm_model: str = "llama3.2:3b",
+    llm_model: str = "llama3.2",
     embeddings_model: str = "nomic-embed-text",
     user_id: Optional[str] = None,
     run_id: Optional[str] = None,
